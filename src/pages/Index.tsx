@@ -1,62 +1,31 @@
 import { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AnalysisSection from "@/components/AnalysisSection";
 import ResultsDashboard from "@/components/ResultsDashboard";
 import { toast } from "sonner";
-
-// Mock analysis result for demo
-const mockAnalysisResult = {
-  fitScore: 72,
-  matchedSkills: [
-    "React", "TypeScript", "JavaScript", "REST APIs", "Git", 
-    "Agile", "Problem Solving", "Team Collaboration"
-  ],
-  missingSkills: [
-    "GraphQL", "AWS", "Docker", "CI/CD", "Kubernetes"
-  ],
-  unrelatedSkills: [
-    "Photoshop", "Video Editing", "Public Speaking"
-  ],
-  suggestions: [
-    {
-      title: "Add GraphQL Experience",
-      description: "The job requires GraphQL expertise. Consider adding any GraphQL projects or coursework to your resume, or highlight any API development experience that could transfer.",
-      priority: "high" as const,
-    },
-    {
-      title: "Highlight Cloud Experience",
-      description: "AWS knowledge is important for this role. If you have any cloud experience (even personal projects), make sure to include it prominently.",
-      priority: "high" as const,
-    },
-    {
-      title: "Include DevOps Skills",
-      description: "Docker and CI/CD are mentioned in requirements. Add any experience with containerization, deployment pipelines, or infrastructure as code.",
-      priority: "medium" as const,
-    },
-    {
-      title: "Quantify Your Achievements",
-      description: "Your matched skills are strong. Make them more impactful by adding metrics (e.g., 'Improved app performance by 40%').",
-      priority: "medium" as const,
-    },
-    {
-      title: "Tailor Your Summary",
-      description: "Customize your resume summary to mention the specific technologies and values mentioned in this job description.",
-      priority: "low" as const,
-    },
-  ],
-};
+import { analyzeResume, saveAnalysisResult, AnalysisResult } from "@/services/analysisService";
+import { useAuth } from "@/contexts/AuthContext";
 
 type AppState = "landing" | "analysis" | "results";
 
 const Index = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [appState, setAppState] = useState<AppState>("landing");
   const [isLoading, setIsLoading] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState(mockAnalysisResult);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const analysisRef = useRef<HTMLDivElement>(null);
 
   const handleGetStarted = () => {
+    if (!user) {
+      toast.info("Please sign up to analyze your resume.");
+      navigate("/auth?tab=signup");
+      return;
+    }
+
     setAppState("analysis");
     setTimeout(() => {
       analysisRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -65,25 +34,35 @@ const Index = () => {
 
   const handleAnalyze = async (file: File, jobDescription: string) => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    
-    // In production, this would call the backend API
-    // For now, we show mock results with slight randomization
-    const randomScore = Math.floor(Math.random() * 30) + 55;
-    setAnalysisResult({
-      ...mockAnalysisResult,
-      fitScore: randomScore,
-    });
-    
-    setIsLoading(false);
-    setAppState("results");
-    toast.success("Analysis complete!", {
-      description: `Your resume has a ${randomScore}% match with this job.`,
-    });
-    
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    try {
+      // Call the service
+      const result = await analyzeResume(file, jobDescription);
+      setAnalysisResult(result);
+
+      // Save result if user is logged in
+      if (user) {
+        try {
+          await saveAnalysisResult(user.id, file.name, jobDescription, result);
+          toast.success("Analysis saved to your history!");
+        } catch (error) {
+          console.error("Failed to save history", error);
+          toast.error("Analysis complete, but failed to save to history.");
+        }
+      } else {
+        toast.success("Analysis complete!", {
+          description: "Sign in to save your results history.",
+        });
+      }
+
+      setAppState("results");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      console.error(error);
+      toast.error("Analysis failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleReset = () => {
@@ -94,9 +73,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <AnimatePresence mode="wait">
-        {appState === "results" ? (
+        {appState === "results" && analysisResult ? (
           <motion.div
             key="results"
             initial={{ opacity: 0 }}
@@ -117,7 +96,7 @@ const Index = () => {
             transition={{ duration: 0.3 }}
           >
             <HeroSection onGetStarted={handleGetStarted} />
-            
+
             <div ref={analysisRef}>
               {appState === "analysis" && (
                 <AnalysisSection onAnalyze={handleAnalyze} isLoading={isLoading} />
@@ -126,7 +105,7 @@ const Index = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-border">
         <div className="max-w-7xl mx-auto text-center text-sm text-muted-foreground">
