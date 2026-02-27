@@ -1,21 +1,9 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Download, RefreshCw } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, AlertTriangle, MessageSquare, FileText, Trophy, HeartHandshake, ShieldQuestion, Award } from "lucide-react";
 import ScoreGauge from "./ScoreGauge";
 import SkillsSection from "./SkillsSection";
-import SuggestionCard from "./SuggestionCard";
 import { Button } from "./ui/button";
-
-interface AnalysisResult {
-  fitScore: number;
-  matchedSkills: string[];
-  missingSkills: string[];
-  unrelatedSkills: string[];
-  suggestions: Array<{
-    title: string;
-    description: string;
-    priority: "high" | "medium" | "low";
-  }>;
-}
+import { AnalysisResult } from "@/services/analysisService";
 
 interface ResultsDashboardProps {
   result: AnalysisResult;
@@ -48,7 +36,7 @@ const ResultsDashboard = ({ result, onReset }: ResultsDashboardProps) => {
             </Button>
           </div>
         </motion.div>
-        
+
         {/* Main content */}
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left column - Score */}
@@ -59,9 +47,9 @@ const ResultsDashboard = ({ result, onReset }: ResultsDashboardProps) => {
             className="lg:col-span-1"
           >
             <div className="glass rounded-2xl p-8 text-center sticky top-28">
-              <h2 className="text-xl font-semibold mb-6">Your Fit Score</h2>
+              <h2 className="text-xl font-semibold mb-6">Candidate Fit Score</h2>
               <ScoreGauge score={result.fitScore} size={220} />
-              
+
               <div className="mt-8 pt-6 border-t border-border">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
@@ -80,9 +68,24 @@ const ResultsDashboard = ({ result, onReset }: ResultsDashboardProps) => {
               </div>
             </div>
           </motion.div>
-          
+
           {/* Right column - Details */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Candidate Summary */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="glass rounded-xl p-6"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="w-5 h-5 text-primary" />
+                <h2 className="text-xl font-semibold">Candidate Summary</h2>
+              </div>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                {result.candidateSummary}
+              </p>
+            </motion.div>
             {/* Skills */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -96,26 +99,126 @@ const ResultsDashboard = ({ result, onReset }: ResultsDashboardProps) => {
                 unrelatedSkills={result.unrelatedSkills}
               />
             </motion.div>
-            
-            {/* Suggestions */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <h2 className="text-xl font-semibold mb-4">AI Recommendations</h2>
-              <div className="space-y-3">
-                {result.suggestions.map((suggestion, index) => (
-                  <SuggestionCard
-                    key={index}
-                    title={suggestion.title}
-                    description={suggestion.description}
-                    priority={suggestion.priority}
-                    delay={index * 0.1}
-                  />
-                ))}
-              </div>
-            </motion.div>
+
+            {/* Key Achievements */}
+            {result.keyAchievements && result.keyAchievements.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+                className="glass rounded-xl p-6"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy className="w-5 h-5 text-warning" />
+                  <h2 className="text-xl font-semibold">Key Achievements & Metrics</h2>
+                </div>
+                <ul className="space-y-3">
+                  {result.keyAchievements.map((achievement, index) => (
+                    <li key={index} className="flex gap-3 text-muted-foreground items-start bg-secondary/30 p-3 rounded-lg border border-border/50">
+                      <span className="text-warning mt-0.5">•</span>
+                      <span>{achievement}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
+
+            {/* Seniority & Culture Fit Dual Cards */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.28 }}
+                className="glass rounded-xl p-5 border-t-2 border-t-primary"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Award className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold text-lg">Seniority Assessment</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">{result.seniorityAssessment}</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="glass rounded-xl p-5 border-t-2 border-t-success"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <HeartHandshake className="w-5 h-5 text-success" />
+                  <h3 className="font-semibold text-lg">Culture Fit</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">{result.cultureFit}</p>
+              </motion.div>
+            </div>
+
+            {/* Deep Dive Probing Areas */}
+            {result.probingAreas && result.probingAreas.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.35 }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <ShieldQuestion className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Technical Probing Areas</h2>
+                </div>
+                <div className="space-y-3">
+                  {result.probingAreas.map((area, index) => (
+                    <div key={index} className="glass rounded-xl p-5 border-l-4 border-l-primary/50">
+                      <h4 className="font-semibold mb-1">{area.title}</h4>
+                      <p className="text-sm text-muted-foreground">{area.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Red Flags */}
+            {result.redFlags && result.redFlags.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="glass rounded-xl p-6 border-l-4 border-l-destructive"
+              >
+                <div className="flex items-center gap-2 mb-4 text-destructive">
+                  <AlertTriangle className="w-5 h-5" />
+                  <h2 className="text-xl font-semibold">Potential Red Flags</h2>
+                </div>
+                <ul className="space-y-2">
+                  {result.redFlags.map((flag, index) => (
+                    <li key={index} className="flex gap-2 text-muted-foreground items-start">
+                      <span className="text-destructive mt-1">•</span>
+                      <span>{flag}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
+
+            {/* Interview Questions */}
+            {result.interviewQuestions && result.interviewQuestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="glass rounded-xl p-6"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <MessageSquare className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Suggested Interview Questions</h2>
+                </div>
+                <ul className="space-y-3">
+                  {result.interviewQuestions.map((question, index) => (
+                    <li key={index} className="flex gap-3 text-muted-foreground items-start bg-secondary/30 p-3 rounded-lg">
+                      <span className="font-semibold text-primary">Q{index + 1}.</span>
+                      <span>{question}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
           </div>
         </div>
       </div>

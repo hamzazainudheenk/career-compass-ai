@@ -9,8 +9,8 @@ interface FileUploaderProps {
   maxSize?: number;
 }
 
-const FileUploader = ({ 
-  onFileSelect, 
+const FileUploader = ({
+  onFileSelect,
   acceptedTypes = ".pdf,.docx,.doc,.txt",
   maxSize = 10 * 1024 * 1024 // 10MB
 }: FileUploaderProps) => {
@@ -31,17 +31,17 @@ const FileUploader = ({
   const validateFile = (file: File): boolean => {
     const extension = "." + file.name.split(".").pop()?.toLowerCase();
     const validExtensions = acceptedTypes.split(",");
-    
+
     if (!validExtensions.includes(extension)) {
       setError("Invalid file type. Please upload PDF, DOCX, or TXT files.");
       return false;
     }
-    
+
     if (file.size > maxSize) {
       setError("File is too large. Maximum size is 10MB.");
       return false;
     }
-    
+
     setError(null);
     return true;
   };
@@ -94,11 +94,10 @@ const FileUploader = ({
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
-              isDragging
+            className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${isDragging
                 ? "border-primary bg-primary/10 scale-[1.02]"
                 : "border-border hover:border-primary/50 hover:bg-card/50"
-            }`}
+              }`}
           >
             <input
               type="file"
@@ -106,20 +105,19 @@ const FileUploader = ({
               onChange={handleFileInput}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-            
+
             <motion.div
               animate={isDragging ? { scale: 1.1, y: -5 } : { scale: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors ${
-                isDragging ? "bg-primary/20" : "bg-secondary"
-              }`}>
+              <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors ${isDragging ? "bg-primary/20" : "bg-secondary"
+                }`}>
                 <Upload className={`w-8 h-8 transition-colors ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
               </div>
             </motion.div>
-            
+
             <h3 className="text-lg font-semibold mb-2">
-              {isDragging ? "Drop your resume here" : "Upload your resume"}
+              {isDragging ? "Drop candidate resume here" : "Upload candidate resume"}
             </h3>
             <p className="text-muted-foreground text-sm mb-4">
               Drag and drop or click to browse
@@ -161,7 +159,7 @@ const FileUploader = ({
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       {error && (
         <motion.p
           initial={{ opacity: 0, y: -10 }}

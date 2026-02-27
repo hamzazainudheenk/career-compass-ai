@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AnalysisSection from "@/components/AnalysisSection";
 import ResultsDashboard from "@/components/ResultsDashboard";
+import HowItWorksSection from "@/components/HowItWorksSection";
 import { toast } from "sonner";
 import { analyzeResume, saveAnalysisResult, AnalysisResult } from "@/services/analysisService";
 import { useAuth } from "@/contexts/AuthContext";
@@ -96,6 +97,10 @@ const Index = () => {
             transition={{ duration: 0.3 }}
           >
             <HeroSection onGetStarted={handleGetStarted} />
+
+            <div id="how-it-works">
+              <HowItWorksSection />
+            </div>
 
             <div ref={analysisRef}>
               {appState === "analysis" && (

@@ -10,10 +10,16 @@ create table if not exists public.analysis_results (
   
   -- Analysis Output (JSONB for flexibility)
   fit_score integer,
+  candidate_summary text,
   matched_skills jsonb,
   missing_skills jsonb,
   unrelated_skills jsonb,
-  suggestions jsonb
+  key_achievements jsonb,
+  culture_fit text,
+  probing_areas jsonb,
+  seniority_assessment text,
+  red_flags jsonb,
+  interview_questions jsonb
 );
 
 -- Set up Row Level Security (RLS)

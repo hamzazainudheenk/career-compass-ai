@@ -40,7 +40,19 @@ const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="hidden md:flex text-muted-foreground hover:text-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden md:flex text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              if (window.location.pathname !== "/") {
+                navigate("/");
+                setTimeout(() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }), 100);
+              } else {
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
             How it works
           </Button>
 

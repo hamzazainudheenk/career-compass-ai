@@ -33,14 +33,14 @@ const AnalysisSection = ({ onAnalyze, isLoading }: AnalysisSectionProps) => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Start Your Analysis
+            Start Candidate Analysis
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Upload your resume and paste the job description you're interested in. 
-            Our AI will analyze the match and provide detailed insights.
+            Upload the candidate's resume and paste the job description you are hiring for.
+            Our AI will evaluate the match and provide detailed screening insights.
           </p>
         </motion.div>
-        
+
         <div className="grid md:grid-cols-2 gap-8">
           {/* Resume Upload */}
           <motion.div
@@ -50,12 +50,12 @@ const AnalysisSection = ({ onAnalyze, isLoading }: AnalysisSectionProps) => {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="mb-4">
-              <h3 className="text-lg font-semibold mb-1">Step 1: Upload Resume</h3>
-              <p className="text-sm text-muted-foreground">Your resume will be analyzed securely</p>
+              <h3 className="text-lg font-semibold mb-1">Step 1: Upload Candidate Resume</h3>
+              <p className="text-sm text-muted-foreground">The resume will be analyzed securely</p>
             </div>
             <FileUploader onFileSelect={setSelectedFile} />
           </motion.div>
-          
+
           {/* Job Description */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -65,7 +65,7 @@ const AnalysisSection = ({ onAnalyze, isLoading }: AnalysisSectionProps) => {
           >
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-1">Step 2: Paste Job Description</h3>
-              <p className="text-sm text-muted-foreground">Copy the full job posting for best results</p>
+              <p className="text-sm text-muted-foreground">Copy the full job posting requirements</p>
             </div>
             <JDTextArea
               value={jobDescription}
@@ -74,7 +74,7 @@ const AnalysisSection = ({ onAnalyze, isLoading }: AnalysisSectionProps) => {
             />
           </motion.div>
         </div>
-        
+
         {/* Analyze Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

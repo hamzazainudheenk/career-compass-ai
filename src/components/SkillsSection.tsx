@@ -1,10 +1,6 @@
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SkillPill from "./SkillPill";
-import CourseCard from "./CourseCard";
-import { CheckCircle2, XCircle, MinusCircle, GraduationCap, ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "./ui/button";
-import { getTopCourseForSkill } from "@/lib/courseRecommendations";
+import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
 
 interface SkillsSectionProps {
   matchedSkills: string[];
@@ -13,12 +9,6 @@ interface SkillsSectionProps {
 }
 
 const SkillsSection = ({ matchedSkills, missingSkills, unrelatedSkills }: SkillsSectionProps) => {
-  const [showCourses, setShowCourses] = useState(false);
-
-  const courseRecommendations = missingSkills.map(skill => ({
-    skill,
-    course: getTopCourseForSkill(skill),
-  }));
 
   return (
     <div className="space-y-6">
@@ -69,45 +59,7 @@ const SkillsSection = ({ matchedSkills, missingSkills, unrelatedSkills }: Skills
           ))}
         </div>
 
-        {/* Course Recommendations Toggle */}
-        {missingSkills.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-border/50">
-            <Button
-              variant="ghost"
-              className="w-full justify-between hover:bg-primary/10 text-primary"
-              onClick={() => setShowCourses(!showCourses)}
-            >
-              <div className="flex items-center gap-2">
-                <GraduationCap className="w-4 h-4" />
-                <span className="font-medium">Recommended Courses to Learn These Skills</span>
-              </div>
-              {showCourses ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
 
-            <AnimatePresence>
-              {showCourses && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <div className="grid gap-3 mt-4 sm:grid-cols-2">
-                    {courseRecommendations.map((rec, index) => (
-                      <CourseCard
-                        key={rec.skill}
-                        skill={rec.skill}
-                        course={rec.course}
-                        delay={index * 0.1}
-                      />
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
       </motion.div>
 
       {/* Unrelated Skills */}
