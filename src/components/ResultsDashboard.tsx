@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Download, RefreshCw, AlertTriangle, MessageSquare, FileText, Trophy, HeartHandshake, ShieldQuestion, Award } from "lucide-react";
+import { ArrowLeft, RefreshCw, AlertTriangle, MessageSquare, FileText, Trophy, HeartHandshake, ShieldQuestion, Award } from "lucide-react";
 import ScoreGauge from "./ScoreGauge";
 import SkillsSection from "./SkillsSection";
 import { Button } from "./ui/button";
@@ -26,10 +26,7 @@ const ResultsDashboard = ({ result, onReset }: ResultsDashboardProps) => {
             New Analysis
           </Button>
           <div className="flex gap-3">
-            <Button variant="glass" size="sm">
-              <Download className="w-4 h-4" />
-              Export PDF
-            </Button>
+
             <Button variant="glass" size="sm" onClick={onReset}>
               <RefreshCw className="w-4 h-4" />
               Re-analyze
