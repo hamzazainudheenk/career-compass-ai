@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/react": "^6.6.2",
     "@fontsource/outfit": "^5.2.8",
     "@google/genai": "^1.43.0",
     "@hookform/resolvers": "^3.10.0",

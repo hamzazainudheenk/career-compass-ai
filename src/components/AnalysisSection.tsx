@@ -7,10 +7,12 @@ import { Button } from "./ui/button";
 
 interface AnalysisSectionProps {
   onAnalyze: (file: File, jobDescription: string) => void;
+  onFetchEmail?: () => void;
   isLoading: boolean;
+  isFetchingEmail?: boolean;
 }
 
-const AnalysisSection = ({ onAnalyze, isLoading }: AnalysisSectionProps) => {
+const AnalysisSection = ({ onAnalyze, onFetchEmail, isLoading, isFetchingEmail }: AnalysisSectionProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
 
@@ -83,25 +85,46 @@ const AnalysisSection = ({ onAnalyze, isLoading }: AnalysisSectionProps) => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-10 text-center"
         >
-          <Button
-            variant="hero"
-            size="xl"
-            onClick={handleAnalyze}
-            disabled={!isValid || isLoading}
-            className="min-w-[250px]"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                Analyze Match
-                <ArrowRight className="w-5 h-5" />
-              </>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button
+              variant="hero"
+              size="xl"
+              onClick={handleAnalyze}
+              disabled={!isValid || isLoading || isFetchingEmail}
+              className="min-w-[250px]"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  Analyze Match
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </Button>
+            
+            {onFetchEmail && (
+              <Button
+                variant="outline"
+                size="xl"
+                onClick={onFetchEmail}
+                disabled={isLoading || isFetchingEmail}
+                className="min-w-[250px]"
+              >
+                {isFetchingEmail ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    Fetching Emails...
+                  </>
+                ) : (
+                  "Fetch from Email"
+                )}
+              </Button>
             )}
-          </Button>
+          </div>
           {!isValid && selectedFile && (
             <p className="mt-3 text-sm text-muted-foreground">
               Please add a job description (at least 50 characters)

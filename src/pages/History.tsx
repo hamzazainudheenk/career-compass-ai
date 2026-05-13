@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useUser } from "@clerk/react";
 import { getAnalysisHistory, AnalysisResult } from "@/services/analysisService";
 import Navbar from "@/components/Navbar";
 import ResultsDashboard from "@/components/ResultsDashboard";
@@ -29,7 +29,7 @@ export interface DBHistoryItem {
 }
 
 const History = () => {
-    const { user } = useAuth();
+    const { user } = useUser();
     const [history, setHistory] = useState<DBHistoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedResult, setSelectedResult] = useState<AnalysisResult | null>(null);
@@ -70,7 +70,12 @@ const History = () => {
             <Navbar />
             <div className="container mx-auto py-24 px-6">
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-3xl font-bold">Analysis History</h1>
+                    <div>
+                        <h1 className="text-3xl font-bold">Analysis History</h1>
+                        <p className="text-xs text-muted-foreground mt-2 font-mono">
+                            Your User ID: {user?.id}
+                        </p>
+                    </div>
                     <Button asChild>
                         <Link to="/">New Analysis</Link>
                     </Button>

@@ -8,22 +8,24 @@ import ResultsDashboard from "@/components/ResultsDashboard";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import { toast } from "sonner";
 import { analyzeResume, saveAnalysisResult, AnalysisResult } from "@/services/analysisService";
-import { useAuth } from "@/contexts/AuthContext";
+import { useUser, useClerk } from "@clerk/react";
 
 type AppState = "landing" | "analysis" | "results";
 
 const Index = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
+  const { openSignUp } = useClerk();
   const navigate = useNavigate();
   const [appState, setAppState] = useState<AppState>("landing");
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingEmail, setIsFetchingEmail] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const analysisRef = useRef<HTMLDivElement>(null);
 
   const handleGetStarted = () => {
     if (!user) {
       toast.info("Please sign up to analyze your resume.");
-      navigate("/auth?tab=signup");
+      openSignUp();
       return;
     }
 
@@ -31,6 +33,42 @@ const Index = () => {
     setTimeout(() => {
       analysisRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
+  };
+
+  const handleFetchEmail = async () => {
+    if (!user) {
+      toast.info("Please sign in to fetch emails.");
+      openSignUp();
+      return;
+    }
+    
+    setIsFetchingEmail(true);
+    try {
+      const response = await fetch(`http://localhost:3001/api/fetch-emails?userId=${user.id}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+         throw new Error(data.error || "Failed to fetch emails");
+      }
+      
+      if (data.count === 0) {
+         toast.info("No new unread resumes found in email.");
+         return;
+      }
+      
+      toast.success(`Successfully processed ${data.count} resume(s)!`);
+      
+      if (data.results && data.results.length > 0) {
+         setAnalysisResult(data.results[0].result);
+         setAppState("results");
+         window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } catch (error: any) {
+       console.error("Error fetching emails:", error);
+       toast.error(error.message || "Failed to connect to email worker.");
+    } finally {
+       setIsFetchingEmail(false);
+    }
   };
 
   const handleAnalyze = async (file: File, jobDescription: string) => {
@@ -104,7 +142,12 @@ const Index = () => {
 
             <div ref={analysisRef}>
               {appState === "analysis" && (
-                <AnalysisSection onAnalyze={handleAnalyze} isLoading={isLoading} />
+                <AnalysisSection 
+                  onAnalyze={handleAnalyze} 
+                  onFetchEmail={handleFetchEmail}
+                  isLoading={isLoading} 
+                  isFetchingEmail={isFetchingEmail}
+                />
               )}
             </div>
           </motion.div>

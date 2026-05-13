@@ -1,26 +1,12 @@
 import { motion } from "framer-motion";
-import { Compass, Github, LogOut, User } from "lucide-react";
+import { Compass, LogOut, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { useAuth } from "@/contexts/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Show, SignInButton, UserButton } from "@clerk/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar = () => {
-  const { user, signOut } = useAuth();
   const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
 
   return (
     <motion.nav
@@ -56,49 +42,18 @@ const Navbar = () => {
             How it works
           </Button>
 
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || ""} />
-                    <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">User</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/history")}>
-                  <Compass className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button variant="glass" size="sm" asChild>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-                  <Github className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">Star on GitHub</span>
-                </a>
-              </Button>
-              <Button onClick={() => navigate("/auth")} size="sm">
-                Sign In
-              </Button>
-            </>
-          )}
+          <Show when="signed-in">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/history")}>
+              <Compass className="mr-2 h-4 w-4" />
+              Dashboard
+            </Button>
+            <UserButton />
+          </Show>
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <Button size="sm">Sign In</Button>
+            </SignInButton>
+          </Show>
         </div>
       </div>
     </motion.nav>
