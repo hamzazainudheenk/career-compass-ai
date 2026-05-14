@@ -1,0 +1,155 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, Loader2, Mail } from "lucide-react";
+import FileUploader from "./FileUploader";
+import JDTextArea from "./JDTextArea";
+import { Button } from "./ui/button";
+
+interface AnalysisSectionProps {
+  onAnalyze: (file: File, jobDescription: string) => void;
+  onFetchEmail?: () => void;
+  isLoading: boolean;
+  isFetchingEmail?: boolean;
+  jobDescription: string;
+  onJobDescriptionChange: (value: string) => void;
+}
+
+const AnalysisSection = ({
+  onAnalyze,
+  onFetchEmail,
+  isLoading,
+  isFetchingEmail,
+  jobDescription,
+  onJobDescriptionChange,
+}: AnalysisSectionProps) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleAnalyze = () => {
+    if (selectedFile && jobDescription.trim()) {
+      onAnalyze(selectedFile, jobDescription);
+    }
+  };
+
+  const isValid = selectedFile && jobDescription.trim().length > 50;
+
+  return (
+    <section id="analysis" className="py-20 px-6">
+      <div className="max-w-5xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Start Candidate Analysis
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Upload the candidate's resume and paste the job description you are hiring for.
+            Our AI will evaluate the match and provide detailed screening insights.
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Resume Upload */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold mb-1">Step 1: Upload Candidate Resume</h3>
+              <p className="text-sm text-muted-foreground">The resume will be analyzed securely</p>
+            </div>
+            <FileUploader onFileSelect={setSelectedFile} />
+          </motion.div>
+
+          {/* Job Description */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold mb-1">Step 2: Paste Job Description</h3>
+              <p className="text-sm text-muted-foreground">Copy the full job posting requirements</p>
+            </div>
+            <JDTextArea
+              value={jobDescription}
+              onChange={onJobDescriptionChange}
+              placeholder="Paste the complete job description here including requirements, qualifications, responsibilities..."
+            />
+          </motion.div>
+        </div>
+
+        {/* Analyze Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-10 text-center"
+        >
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button
+              variant="hero"
+              size="xl"
+              onClick={handleAnalyze}
+              disabled={!isValid || isLoading || isFetchingEmail}
+              className="min-w-[250px]"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  Analyze Match
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </Button>
+            
+            {onFetchEmail && (
+              <div className="flex flex-col items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="xl"
+                  onClick={onFetchEmail}
+                  disabled={isLoading || isFetchingEmail}
+                  className="min-w-[250px] gap-2"
+                >
+                  {isFetchingEmail ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Scanning Inbox...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-5 h-5" />
+                      Analyse from Gmail Inbox
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Fetches unread emails with PDF attachments · uses the job description above
+                </p>
+              </div>
+            )}
+          </div>
+          {!isValid && selectedFile && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Please add a job description (at least 50 characters)
+            </p>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+export default AnalysisSection;
